@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CQ Silvopastoral Dashboard</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <div class="logo"><i class="ti ti-tree"></i></div>
+  <div>
+    <h1>CQ Silvopastoral Dashboard</h1>
+    <p>Integrated beef &amp; timber profitability — Central Queensland</p>
+  </div>
+</header>
+<div class="container">
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('inputs',this)"><i class="ti ti-adjustments-horizontal"></i> Inputs</button>
+    <button class="tab" onclick="showTab('profit',this)"><i class="ti ti-report-money"></i> Profit</button>
+    <button class="tab" onclick="showTab('shade',this)"><i class="ti ti-sun"></i> Shade &amp; Water</button>
+    <button class="tab" onclick="showTab('regs',this)"><i class="ti ti-gavel"></i> Regulations</button>
+    <button class="tab" onclick="showTab('logistics',this)"><i class="ti ti-truck"></i> Logistics</button>
+  </div>
+
+  <!-- INPUTS TAB -->
+  <div class="panel active" id="tab-inputs">
+    <p class="sl">Station details</p>
+    <div class="row"><label>Station region</label>
+      <select id="region" onchange="update()">
+        <option value="rockhampton">Rockhampton / Fitzroy</option>
+        <option value="emerald">Emerald / Central Highlands</option>
+        <option value="mackay">Mackay / Pioneer Valley</option>
+        <option value="longreach">Longreach / Central West</option>
+      </select>
+      <span class="rv" style="visibility:hidden">--</span>
+    </div>
+    <div class="row"><label>Total station size</label><input type="range" id="station-ha" min="500" max="20000" step="100" value="5000" oninput="update()"><span class="rv"><span id="stn-out">5,000</span> ha</span></div>
+    <div class="row"><label>Planted area</label><input type="range" id="hectares" min="10" max="2000" step="10" value="200" oninput="update()"><span class="rv"><span id="ha-out">200</span> ha</span></div>
+    <div class="row"><label>Tree species</label>
+      <select id="species" onchange="update()">
+        <option value="hoop_pine">Hoop Pine</option>
+        <option value="spotted_gum">Spotted Gum</option>
+        <option value="ironbark">Grey Ironbark</option>
+        <option value="white_mahogany">White Mahogany</option>
+      </select>
+      <span class="rv" style="visibility:hidden">--</span>
+    </div>
+    <div class="row"><label>Planting density</label><input type="range" id="density" min="100" max="600" step="25" value="300" oninput="update()"><span class="rv"><span id="dens-out">300</span>/ha</span></div>
+    <hr>
+    <p class="sl">Beef parameters</p>
+    <div class="row"><label>Beef price ($/head/yr)</label><input type="range" id="beef-price" min="400" max="1400" step="50" value="800" oninput="update()"><span class="rv">$<span id="beef-out">800</span></span></div>
+    <div class="row"><label>Carrying capacity</label><input type="range" id="carry" min="1" max="10" step="1" value="4" oninput="update()"><span class="rv"><span id="carry-out">4</span> ha/head</span></div>
+    <div class="row"><label>Cattle cartage ($/head/100km)</label><input type="range" id="cattle-cartage" min="5" max="30" step="1" value="14" oninput="update()"><span class="rv">$<span id="cartage-out">14</span></span></div>
+    <hr>
+    <p class="sl">Market &amp; carbon</p>
+    <div class="row"><label>Carbon price ($/ACCU)</label><input type="range" id="carbon-price" min="15" max="80" step="5" value="35" oninput="update()"><span class="rv">$<span id="carbon-out">35</span></span></div>
+    <div class="row"><label>Timber royalty ($/m3)</label><input type="range" id="royalty" min="40" max="150" step="5" value="95" oninput="update()"><span class="rv">$<span id="royalty-out">95</span></span></div>
+    <div class="mg" style="margin-top:16px">
+      <div class="mc"><p class="ml">% land planted</p><p class="mv" id="pct-land">4%</p><p class="ms">of station</p></div>
+      <div class="mc"><p class="ml">Seedlings needed</p><p class="mv" id="seedlings-needed">60,000</p><p class="ms" id="seedling-cost-sub">est. $108k</p></div>
+      <div class="mc"><p class="ml">Cattle (remaining land)</p><p class="mv" id="cattle-count">1,200</p><p class="ms">head</p></div>
+      <div class="mc"><p class="ml">Shade bonus cattle</p><p class="mv" id="shade-cattle">--</p><p class="ms">adjacent to trees</p></div>
+      <div class="mc"><p class="ml">Cattle turned off/yr</p><p class="mv" id="turnoff-count">--</p><p class="ms">at 20% annual turnoff</p></div>
+    </div>
+  </div>
+
+  <!-- PROFIT TAB -->
+  <div class="panel" id="tab-profit">
+    <div class="mg">
+      <div class="mc"><p class="ml">Total revenue (25 yr)</p><p class="mv" id="p-total-rev">$0</p><p class="ms">all streams</p></div>
+      <div class="mc"><p class="ml">Total costs</p><p class="mv" id="p-total-cost">$0</p><p class="ms">estab + opportunity</p></div>
+      <div class="mc"><p class="ml">Net profit</p><p class="mv" id="p-net" style="color:#0F6E56">$0</p><p class="ms">25-year rotation</p></div>
+      <div class="mc"><p class="ml">ROI</p><p class="mv" id="p-roi">0%</p><p class="ms">on establishment cost</p></div>
+    </div>
+    <p class="sl">Breakdown</p>
+    <div class="card">
+      <div class="pr"><span class="lb">Beef sales -- remaining land (25 yr)</span><span class="vl" id="b-beef">$0</span></div>
+      <div class="pr"><span class="lb">Shade productivity bonus -- beef</span><span class="vl" id="b-shade">$0</span></div>
+      <div class="pr"><span class="lb">Timber royalty at harvest</span><span class="vl" id="b-timber">$0</span></div>
+      <div class="pr"><span class="lb">Carbon credits (ACCUs, 25 yr)</span><span class="vl" id="b-carbon">$0</span></div>
+      <div class="pr neg"><span class="lb">Less: seedlings and establishment</span><span class="vl" id="b-estab">-$0</span></div>
+      <div class="pr neg"><span class="lb">Less: beef opportunity cost (planted ha)</span><span class="vl" id="b-oppcost">-$0</span></div>
+      <div class="pr neg"><span class="lb">Less: transport to sawmill (est.)</span><span class="vl" id="b-transport">-$0</span></div>
+      <div class="pr neg"><span class="lb">Less: cattle cartage to saleyard/abattoir (25 yr)</span><span class="vl" id="b-cartage">-$0</span></div>
+      <div class="pr tot"><span class="lb">Net profit</span><span class="vl" id="b-net">$0</span></div>
+    </div>
+    <div class="cw"><canvas id="profitChart"></canvas></div>
+  </div>
+
+  <!-- SHADE TAB -->
+  <div class="panel" id="tab-shade">
+    <p class="sl">Shade effect model</p>
+    <div class="info-box">Research shows cattle adjacent to tree rows in CQ conditions gain <strong>+8-12% liveweight</strong> and improved reproductive rates due to reduced heat stress. Cattle within one tree-row width (~50m) of the planted area are modelled as benefiting from shade.</div>
+    <div class="mg">
+      <div class="mc"><p class="ml">Shade-adjacent cattle</p><p class="mv" id="s-cattle">0</p><p class="ms">head within 50m of trees</p></div>
+      <div class="mc"><p class="ml">Weight gain bonus</p><p class="mv">+10%</p><p class="ms">avg liveweight gain</p></div>
+      <div class="mc"><p class="ml">Bonus beef income (25 yr)</p><p class="mv" id="s-bonus">$0</p><p class="ms">from shade productivity</p></div>
+      <div class="mc"><p class="ml">Effective $/ha planted</p><p class="mv" id="s-perha">$0</p><p class="ms">shade bonus per ha</p></div>
+    </div>
+    <hr>
+    <p class="sl">Water and nitrogen competition</p>
+    <div class="info-box">At your selected density, trees and pasture grass will share root zones from year 3. Optimal silvopastoral spacing for CQ is <strong>200-350 trees/ha</strong> in alley rows, leaving 8-15m grass alleys between rows.</div>
+    <div class="mg">
+      <div class="mc"><p class="ml">Density status</p><p class="mv" id="dens-status">Optimal</p><p class="ms" id="dens-advice">Good alley spacing</p></div>
+      <div class="mc"><p class="ml">Est. pasture reduction</p><p class="mv" id="pasture-red">12%</p><p class="ms">water competition</p></div>
+      <div class="mc"><p class="ml">Alley width (est.)</p><p class="mv" id="alley-width">10-15 m</p><p class="ms">between tree rows</p></div>
+    </div>
+    <div id="dens-vis" style="display:flex;gap:4px;flex-wrap:wrap;margin:8px 0"></div>
+    <p style="font-size:11px;color:#888;margin-top:6px">Indicative tree spacing per 100m row</p>
+  </div>
+
+  <!-- REGULATIONS TAB -->
+  <div class="panel" id="tab-regs">
+    <p class="sl">Queensland Vegetation Management Act -- key checks</p>
+    <div class="card" id="reg-list"></div>
+    <div class="info-box"><strong>Important:</strong> This is a general guide only. Always verify with Queensland DAF and obtain a Property Map of Assessable Vegetation (PMAV) before planting.</div>
+  </div>
+
+  <!-- LOGISTICS TAB -->
+  <div class="panel" id="tab-logistics">
+    <p class="sl">Nearest saleyard &amp; abattoir <span style="font-weight:400;color:var(--text3)">(beef)</span></p>
+    <div class="mill">
+      <i class="ti ti-building-warehouse" style="font-size:28px;color:#888"></i>
+      <div>
+        <p class="mill-name" id="saleyard-name">--</p>
+        <p class="mill-dist" id="saleyard-dist">--</p>
+      </div>
+      <span class="badge badge-blue" id="road-risk-badge">--</span>
+    </div>
+    <div class="mill" style="margin-top:-4px">
+      <i class="ti ti-building-factory-2" style="font-size:28px;color:#888"></i>
+      <div>
+        <p class="mill-name" id="abattoir-name">--</p>
+        <p class="mill-dist" id="abattoir-dist">--</p>
+      </div>
+    </div>
+    <div class="mg">
+      <div class="mc"><p class="ml">Cattle cartage rate</p><p class="mv" id="bl-rate">$0</p><p class="ms">per head, to saleyard</p></div>
+      <div class="mc"><p class="ml">Cartage cost per head</p><p class="mv" id="bl-perhead">$0</p><p class="ms" id="bl-perhead-sub">at saleyard distance</p></div>
+      <div class="mc"><p class="ml">Annual cartage cost</p><p class="mv" id="bl-annual">$0</p><p class="ms" id="bl-annual-sub">at current turnoff rate</p></div>
+      <div class="mc"><p class="ml">Total cartage (25 yr)</p><p class="mv" id="bl-total">$0</p><p class="ms">cumulative</p></div>
+    </div>
+    <div class="info-box" id="bl-road-note">--</div>
+    <hr>
+
+    <p class="sl">Nearest sawmill <span style="font-weight:400;color:var(--text3)">(timber)</span></p>
+    <div class="mill">
+      <i class="ti ti-building-factory" style="font-size:28px;color:#888"></i>
+      <div>
+        <p class="mill-name" id="mill-name">--</p>
+        <p class="mill-dist" id="mill-dist">--</p>
+      </div>
+      <span class="badge badge-green" id="mill-badge">--</span>
+    </div>
+    <div class="mg">
+      <div class="mc"><p class="ml">Est. transport cost</p><p class="mv" id="l-transport">$0</p><p class="ms" id="l-transport-sub">per load</p></div>
+      <div class="mc"><p class="ml">Loads required</p><p class="mv" id="l-loads">0</p><p class="ms">B-double trucks</p></div>
+      <div class="mc"><p class="ml">Total transport cost</p><p class="mv" id="l-total-transport">$0</p><p class="ms">at harvest</p></div>
+      <div class="mc"><p class="ml">Port access</p><p class="mv">Gladstone</p><p class="ms" id="l-port-dist">--</p></div>
+    </div>
+    <hr>
+    <p class="sl">Nursery and seedling supply</p>
+    <div class="card">
+      <div class="pr"><span class="lb">Recommended nursery (CQ)</span><span class="vl" id="l-nursery">--</span></div>
+      <div class="pr"><span class="lb">Seedling price (est.)</span><span class="vl" id="l-seed-price">--</span></div>
+      <div class="pr"><span class="lb">Seedlings needed</span><span class="vl" id="l-seed-count">--</span></div>
+      <div class="pr"><span class="lb">Total seedling cost</span><span class="vl" id="l-seed-total">--</span></div>
+      <div class="pr"><span class="lb">Lead time (order to planting)</span><span class="vl" id="l-lead">6-12 months</span></div>
+    </div>
+    <hr>
+    <p class="sl">Export opportunity</p>
+    <div class="info-box" id="l-export">--</div>
+  </div>
+
+  <p class="footer-note">Estimates only -- for indicative purposes. Verify all figures with DAF Queensland, MLA, and Clean Energy Regulator before making investment decisions.</p>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

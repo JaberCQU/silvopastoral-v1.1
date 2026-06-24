@@ -1,0 +1,254 @@
+/* ============================================================
+   CQ Silvopastoral Dashboard — Stylesheet
+   Author: Jaber (CQUniversity)
+   Version: 1.0 (Phase 1 — Static Prototype)
+   Description: Responsive styling for the silvopastoral
+   decision-support tool. Designed for cattle station owners
+   in Central Queensland. Supports light and dark mode.
+   ============================================================ */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ---- CSS Variables (Design Tokens) ---- */
+:root {
+  --bg:         #ffffff;
+  --bg2:        #f5f4f0;
+  --bg3:        #eeece8;
+  --text:       #1a1a18;
+  --text2:      #6b6a65;
+  --text3:      #9b9a95;
+  --border:     rgba(30,28,20,0.13);
+  --border2:    rgba(30,28,20,0.25);
+  --radius-md:  8px;
+  --radius-lg:  12px;
+  --green:      #0F6E56;
+  --green-bg:   #E1F5EE;
+  --amber:      #854F0B;
+  --amber-bg:   #FAEEDA;
+  --red:        #D85A30;
+  --red-bg:     #FAECE7;
+  --blue:       #185FA5;
+  --blue-bg:    #E6F1FB;
+  --font:       -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg:       #1c1c1a;
+    --bg2:      #252523;
+    --bg3:      #2e2e2b;
+    --text:     #f0ede8;
+    --text2:    #a09e98;
+    --text3:    #6e6d68;
+    --border:   rgba(255,255,255,0.10);
+    --border2:  rgba(255,255,255,0.20);
+    --green:    #5DCAA5;
+    --green-bg: #04342C;
+    --amber:    #EF9F27;
+    --amber-bg: #412402;
+    --red:      #F09595;
+    --red-bg:   #4A1B0C;
+    --blue:     #85B7EB;
+    --blue-bg:  #042C53;
+  }
+}
+
+body {
+  font-family: var(--font);
+  background: var(--bg3);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+/* ---- Header ---- */
+header {
+  background: var(--bg);
+  border-bottom: 0.5px solid var(--border);
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+header .logo {
+  width: 36px; height: 36px;
+  background: var(--green);
+  border-radius: var(--radius-md);
+  display: flex; align-items: center; justify-content: center;
+}
+header .logo i { color: #fff; font-size: 20px; }
+header h1 { font-size: 17px; font-weight: 500; }
+header p  { font-size: 12px; color: var(--text2); margin-top: 2px; }
+
+/* ---- Layout ---- */
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 24px 16px;
+}
+
+/* ---- Tabs ---- */
+.tabs {
+  display: flex;
+  border-bottom: 0.5px solid var(--border);
+  margin-bottom: 0;
+  background: var(--bg);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  padding: 0 8px;
+  overflow-x: auto;
+}
+.tab {
+  font-size: 13px;
+  padding: 12px 16px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text2);
+  cursor: pointer;
+  font-family: var(--font);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  transition: color 0.15s;
+}
+.tab.active { color: var(--text); border-bottom-color: var(--text); font-weight: 500; }
+.tab:hover:not(.active) { color: var(--text); }
+
+/* ---- Panels ---- */
+.panel {
+  display: none;
+  background: var(--bg);
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  padding: 24px;
+  border: 0.5px solid var(--border);
+  border-top: none;
+}
+.panel.active { display: block; }
+
+/* ---- Section Label ---- */
+.sl {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin: 0 0 12px;
+}
+
+/* ---- Input Rows ---- */
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.row label { font-size: 13px; color: var(--text2); min-width: 160px; }
+.row input[type=range] { flex: 1; accent-color: var(--green); }
+.row select {
+  flex: 1;
+  font-size: 13px;
+  font-family: var(--font);
+  padding: 6px 10px;
+  border: 0.5px solid var(--border2);
+  border-radius: var(--radius-md);
+  background: var(--bg);
+  color: var(--text);
+}
+.rv { font-size: 13px; font-weight: 500; min-width: 72px; text-align: right; }
+
+/* ---- Metric Grid ---- */
+.mg { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 20px; }
+.mc { background: var(--bg2); border-radius: var(--radius-md); padding: 12px 14px; }
+.ml { font-size: 11px; color: var(--text2); margin-bottom: 5px; }
+.mv { font-size: 20px; font-weight: 500; }
+.ms { font-size: 11px; color: var(--text3); margin-top: 3px; }
+
+/* ---- Cards and Profit Rows ---- */
+.card {
+  background: var(--bg);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px 20px;
+  margin-bottom: 16px;
+}
+.pr {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 0.5px solid var(--border);
+  font-size: 13px;
+  gap: 12px;
+}
+.pr:last-child { border-bottom: none; }
+.pr.tot { font-weight: 500; font-size: 14px; padding-top: 12px; }
+.pr .lb { color: var(--text2); }
+.pr .vl { white-space: nowrap; }
+.pr.tot .vl { color: var(--green); }
+.pr.neg .vl { color: var(--red); }
+
+/* ---- Divider ---- */
+hr { border: none; border-top: 0.5px solid var(--border); margin: 20px 0; }
+
+/* ---- Sawmill card ---- */
+.mill {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
+  padding: 14px;
+  background: var(--bg2);
+  border-radius: var(--radius-md);
+}
+.mill-name { font-size: 14px; font-weight: 500; margin: 0 0 3px; }
+.mill-dist  { font-size: 12px; color: var(--text2); margin: 0; }
+
+/* ---- Badges ---- */
+.badge { font-size: 11px; padding: 3px 10px; border-radius: 20px; margin-left: auto; white-space: nowrap; font-weight: 500; }
+.badge-green { background: var(--green-bg); color: var(--green); }
+.badge-amber { background: var(--amber-bg); color: var(--amber); }
+.badge-red   { background: var(--red-bg);   color: var(--red);   }
+.badge-blue  { background: var(--blue-bg);  color: var(--blue);  }
+
+/* ---- Regulation rows ---- */
+.reg-row { display: flex; align-items: flex-start; gap: 12px; padding: 12px 0; border-bottom: 0.5px solid var(--border); }
+.reg-row:last-child { border-bottom: none; }
+.reg-icon { font-size: 20px; margin-top: 1px; flex-shrink: 0; }
+.reg-title { font-size: 13px; font-weight: 500; margin: 0 0 4px; }
+.reg-desc  { font-size: 12px; color: var(--text2); line-height: 1.6; margin: 0; }
+
+/* ---- Chart wrapper ---- */
+.cw { position: relative; width: 100%; height: 220px; margin-bottom: 16px; }
+
+/* ---- Info box ---- */
+.info-box {
+  background: var(--bg2);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.7;
+  margin-bottom: 16px;
+}
+.info-box strong { color: var(--text); }
+
+/* ---- Footer note ---- */
+.footer-note {
+  font-size: 11px;
+  color: var(--text3);
+  text-align: center;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 0.5px solid var(--border);
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 600px) {
+  .row label { min-width: 100px; font-size: 12px; }
+  .tab { padding: 10px 10px; font-size: 12px; }
+  header h1 { font-size: 14px; }
+}
