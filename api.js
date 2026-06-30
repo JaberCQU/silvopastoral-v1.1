@@ -384,7 +384,21 @@ function initAuthPanel() {
     const scenarioId = scenarioSelect.value;
     const scenario = myScenarios.find(s => String(s.id) === scenarioId);
     const station = myStations.find(s => String(s.id) === String(stationSelect.value));
+
+    // -- TEMPORARY DEBUG LOGGING -- remove once the region/station-size
+    // snapping issue is confirmed fixed.
+    console.log('[DEBUG] scenarioId:', scenarioId);
+    console.log('[DEBUG] scenario found:', scenario);
+    console.log('[DEBUG] stationSelect.value:', stationSelect.value);
+    console.log('[DEBUG] myStations:', myStations);
+    console.log('[DEBUG] station found:', station);
+    console.log('[DEBUG] region element before:', document.getElementById('region').value);
+    console.log('[DEBUG] station-ha element before:', document.getElementById('station-ha').value);
+
     if (scenario) applyScenarioToForm(scenario, station);
+
+    console.log('[DEBUG] region element after:', document.getElementById('region').value);
+    console.log('[DEBUG] station-ha element after:', document.getElementById('station-ha').value);
   });
 }
 
