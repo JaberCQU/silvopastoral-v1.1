@@ -39,8 +39,29 @@
 
       <div class="row"><label>Station</label>
         <select id="auth-station-select" style="flex:1;font-size:13px"></select>
-        <button class="auth-btn auth-btn-secondary" id="auth-new-station-btn">+ New station</button>
+        <button class="auth-btn auth-btn-secondary" id="auth-new-station-toggle-btn">+ New station</button>
       </div>
+
+      <!-- Self-contained new-station form -- intentionally independent
+           of the Inputs tab sliders, so creating a station never
+           depends on what the sliders happen to show at the time. -->
+      <div id="auth-new-station-form" style="display:none; background:var(--bg2); border-radius:var(--radius-md); padding:12px; margin-bottom:14px">
+        <div class="row"><label>Station name</label><input type="text" id="ns-name" placeholder="e.g. Mt Hope Station" style="flex:1;font-size:13px;padding:6px 10px;border:0.5px solid var(--border2);border-radius:var(--radius-md);background:var(--bg);color:var(--text)"></div>
+        <div class="row"><label>Region</label>
+          <select id="ns-region" style="flex:1;font-size:13px">
+            <option value="rockhampton">Rockhampton / Fitzroy</option>
+            <option value="emerald">Emerald / Central Highlands</option>
+            <option value="mackay">Mackay / Pioneer Valley</option>
+            <option value="longreach">Longreach / Central West</option>
+          </select>
+        </div>
+        <div class="row"><label>Total station size (ha)</label><input type="number" id="ns-hectares" value="5000" min="500" max="50000" step="100" style="flex:1;font-size:13px;padding:6px 10px;border:0.5px solid var(--border2);border-radius:var(--radius-md);background:var(--bg);color:var(--text)"></div>
+        <div class="auth-btn-row" style="margin-bottom:0">
+          <button class="auth-btn" id="auth-new-station-submit-btn">Create station</button>
+          <button class="auth-btn auth-btn-secondary" id="auth-new-station-cancel-btn">Cancel</button>
+        </div>
+      </div>
+
       <div class="row"><label>Saved scenario</label>
         <select id="auth-scenario-select" style="flex:1;font-size:13px"></select>
         <button class="auth-btn auth-btn-secondary" id="auth-load-scenario-btn">Load</button>
