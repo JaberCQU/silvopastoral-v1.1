@@ -257,19 +257,48 @@ async function saveCurrentScenario(stationId, scenarioName) {
  * which could be inconsistent with the station the scenario
  * actually belongs to.
  */
+/**
+ * Sets a form element's value AND dispatches an 'input' event, so
+ * the browser actually redraws the control (important for <input
+ * type="range"> sliders -- setting .value directly via JS updates
+ * the underlying number correctly, but some browsers don't repaint
+ * the visual slider thumb position until an input/change event
+ * fires on the element).
+ */
+function setFieldValue(id, value) {
+  const el = document.getElementById(id);
+  el.value = value;
+  el.dispatchEvent(new Event('input', { bubbles: true }));
+}
+
+/**
+ * Takes a scenario object (as returned by the API) and pushes its
+ * values back into the dashboard's sliders/dropdowns, then calls
+ * the existing update() function from app.js to recalculate
+ * everything on screen.
+ *
+ * Also accepts the scenario's PARENT STATION, since region and
+ * total station size live on the station record, not the scenario
+ * record (a station's location/size doesn't change between
+ * what-if scenarios -- only the planting plan does). Without this,
+ * loading a scenario would leave the region/station-size sliders
+ * showing whatever they happened to be set to before loading,
+ * which could be inconsistent with the station the scenario
+ * actually belongs to.
+ */
 function applyScenarioToForm(scenario, station) {
   if (station) {
-    document.getElementById('region').value     = station.region;
-    document.getElementById('station-ha').value = station.total_hectares;
+    setFieldValue('region', station.region);
+    setFieldValue('station-ha', station.total_hectares);
   }
-  document.getElementById('hectares').value      = scenario.planted_hectares;
-  document.getElementById('species').value        = scenario.species;
-  document.getElementById('density').value         = scenario.density;
-  document.getElementById('beef-price').value      = scenario.beef_price;
-  document.getElementById('carry').value           = scenario.carry_capacity;
-  document.getElementById('cattle-cartage').value  = scenario.cattle_cartage_rate;
-  document.getElementById('carbon-price').value    = scenario.carbon_price;
-  document.getElementById('royalty').value         = scenario.royalty_price;
+  setFieldValue('hectares', scenario.planted_hectares);
+  setFieldValue('species', scenario.species);
+  setFieldValue('density', scenario.density);
+  setFieldValue('beef-price', scenario.beef_price);
+  setFieldValue('carry', scenario.carry_capacity);
+  setFieldValue('cattle-cartage', scenario.cattle_cartage_rate);
+  setFieldValue('carbon-price', scenario.carbon_price);
+  setFieldValue('royalty', scenario.royalty_price);
   update(); // existing recalculation function defined in app.js
 }
 
@@ -384,21 +413,7 @@ function initAuthPanel() {
     const scenarioId = scenarioSelect.value;
     const scenario = myScenarios.find(s => String(s.id) === scenarioId);
     const station = myStations.find(s => String(s.id) === String(stationSelect.value));
-
-    // -- TEMPORARY DEBUG LOGGING -- remove once the region/station-size
-    // snapping issue is confirmed fixed.
-    console.log('[DEBUG] scenarioId:', scenarioId);
-    console.log('[DEBUG] scenario found:', scenario);
-    console.log('[DEBUG] stationSelect.value:', stationSelect.value);
-    console.log('[DEBUG] myStations:', myStations);
-    console.log('[DEBUG] station found:', station);
-    console.log('[DEBUG] region element before:', document.getElementById('region').value);
-    console.log('[DEBUG] station-ha element before:', document.getElementById('station-ha').value);
-
     if (scenario) applyScenarioToForm(scenario, station);
-
-    console.log('[DEBUG] region element after:', document.getElementById('region').value);
-    console.log('[DEBUG] station-ha element after:', document.getElementById('station-ha').value);
   });
 }
 
