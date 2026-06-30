@@ -378,17 +378,34 @@ function initAuthPanel() {
     loggedOutView.style.display = 'block';
   });
 
-  document.getElementById('auth-new-station-btn').addEventListener('click', async () => {
-    const region = document.getElementById('region').value; // reuse the dashboard's own region selector
-    const totalHa = parseFloat(document.getElementById('station-ha').value);
-    const regionLabel = REGIONS[region]?.label || region;
-    const name = prompt(
-      `Station name?\n\n(Will use your current Inputs tab settings: ${regionLabel}, ${totalHa.toLocaleString()} ha total -- change those sliders first if needed.)`
-    );
-    if (!name) return;
+  // -- New station form: intentionally a standalone form, not reading
+  // from the Inputs tab sliders at all, so creating a station never
+  // depends on slider state or click ordering.
+  const newStationForm = document.getElementById('auth-new-station-form');
+
+  document.getElementById('auth-new-station-toggle-btn').addEventListener('click', () => {
+    const isOpen = newStationForm.style.display !== 'none';
+    newStationForm.style.display = isOpen ? 'none' : 'block';
+  });
+
+  document.getElementById('auth-new-station-cancel-btn').addEventListener('click', () => {
+    newStationForm.style.display = 'none';
+  });
+
+  document.getElementById('auth-new-station-submit-btn').addEventListener('click', async () => {
+    showError('');
+    const name = document.getElementById('ns-name').value.trim();
+    const region = document.getElementById('ns-region').value;
+    const totalHa = parseFloat(document.getElementById('ns-hectares').value);
+
+    if (!name) { showError('Enter a station name.'); return; }
+    if (!totalHa || totalHa <= 0) { showError('Enter a valid total station size.'); return; }
+
     try {
       await createStation(name, region, totalHa);
       await refreshStations();
+      document.getElementById('ns-name').value = '';
+      newStationForm.style.display = 'none';
     } catch (err) {
       showError(err.message);
     }
