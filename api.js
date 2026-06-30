@@ -27,7 +27,6 @@
 
 'use strict';
 
-//const API_BASE = 'https://this-does-not-exist-12345.onrender.com';
 const API_BASE = 'https://cq-silvopastoral-api-zwsa.onrender.com';
 
 // How long to wait for the API before giving up and using the
