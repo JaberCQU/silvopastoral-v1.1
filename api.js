@@ -247,8 +247,21 @@ async function saveCurrentScenario(stationId, scenarioName) {
  * values back into the dashboard's sliders/dropdowns, then calls
  * the existing update() function from app.js to recalculate
  * everything on screen.
+ *
+ * Also accepts the scenario's PARENT STATION, since region and
+ * total station size live on the station record, not the scenario
+ * record (a station's location/size doesn't change between
+ * what-if scenarios -- only the planting plan does). Without this,
+ * loading a scenario would leave the region/station-size sliders
+ * showing whatever they happened to be set to before loading,
+ * which could be inconsistent with the station the scenario
+ * actually belongs to.
  */
-function applyScenarioToForm(scenario) {
+function applyScenarioToForm(scenario, station) {
+  if (station) {
+    document.getElementById('region').value     = station.region;
+    document.getElementById('station-ha').value = station.total_hectares;
+  }
   document.getElementById('hectares').value      = scenario.planted_hectares;
   document.getElementById('species').value        = scenario.species;
   document.getElementById('density').value         = scenario.density;
@@ -337,10 +350,13 @@ function initAuthPanel() {
   });
 
   document.getElementById('auth-new-station-btn').addEventListener('click', async () => {
-    const name = prompt('Station name:');
-    if (!name) return;
     const region = document.getElementById('region').value; // reuse the dashboard's own region selector
     const totalHa = parseFloat(document.getElementById('station-ha').value);
+    const regionLabel = REGIONS[region]?.label || region;
+    const name = prompt(
+      `Station name?\n\n(Will use your current Inputs tab settings: ${regionLabel}, ${totalHa.toLocaleString()} ha total -- change those sliders first if needed.)`
+    );
+    if (!name) return;
     try {
       await createStation(name, region, totalHa);
       await refreshStations();
@@ -367,7 +383,8 @@ function initAuthPanel() {
   document.getElementById('auth-load-scenario-btn').addEventListener('click', () => {
     const scenarioId = scenarioSelect.value;
     const scenario = myScenarios.find(s => String(s.id) === scenarioId);
-    if (scenario) applyScenarioToForm(scenario);
+    const station = myStations.find(s => String(s.id) === String(stationSelect.value));
+    if (scenario) applyScenarioToForm(scenario, station);
   });
 }
 
