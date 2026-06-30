@@ -252,3 +252,74 @@ hr { border: none; border-top: 0.5px solid var(--border); margin: 20px 0; }
   .tab { padding: 10px 10px; font-size: 12px; }
   header h1 { font-size: 14px; }
 }
+
+/* ============================================================
+   Phase 2 additions: connection status badge + account panel
+   ============================================================ */
+
+.api-status {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+.api-status-online  { background: var(--green-bg); color: var(--green); }
+.api-status-offline { background: var(--amber-bg); color: var(--amber); }
+
+.auth-panel {
+  background: var(--bg);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  margin-bottom: 16px;
+  padding: 0 20px;
+}
+.auth-panel summary {
+  cursor: pointer;
+  padding: 14px 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  list-style: none;
+}
+.auth-panel summary::-webkit-details-marker { display: none; }
+.auth-panel[open] summary { border-bottom: 0.5px solid var(--border); margin-bottom: 14px; }
+
+.auth-hint { font-size: 12px; color: var(--text2); margin: 0 0 12px; }
+.auth-error {
+  font-size: 12px;
+  color: var(--red);
+  background: var(--red-bg);
+  padding: 8px 12px;
+  border-radius: var(--radius-md);
+  margin-bottom: 12px;
+}
+.auth-btn-row { display: flex; gap: 8px; margin: 12px 0 16px; }
+.auth-btn {
+  font-size: 13px;
+  font-family: var(--font);
+  padding: 7px 14px;
+  border-radius: var(--radius-md);
+  border: none;
+  background: var(--green);
+  color: #fff;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.auth-btn:hover { opacity: 0.9; }
+.auth-btn-secondary { background: var(--bg2); color: var(--text); border: 0.5px solid var(--border2); }
+.auth-link-btn {
+  font-size: 12px;
+  color: var(--text2);
+  background: none;
+  border: none;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+  margin-left: 6px;
+}
+
