@@ -216,6 +216,10 @@ async function createStation(name, region, totalHectares) {
   });
 }
 
+async function deleteStation(stationId) {
+  return apiFetch(`/stations/${stationId}`, { method: 'DELETE' });
+}
+
 async function listScenarios(stationId) {
   return apiFetch(`/stations/${stationId}/scenarios`);
 }
@@ -324,6 +328,111 @@ function initAuthPanel() {
     authError.style.display = msg ? 'block' : 'none';
   }
 
+  // -- Role-aware view: applies a CSS class to <body> so that
+  // farmer-only tabs are hidden for investors, and the admin tab
+  // is revealed for admins. Also populates the admin tab content.
+  async function applyRoleView(user) {
+    document.body.classList.remove('role-farmer', 'role-investor', 'role-admin');
+    if (user) {
+      document.body.classList.add('role-' + user.role);
+      // Show tier badge next to user name
+      const tierBadge = user.tier === 'premium'
+        ? ' <span class="tier-premium">Premium</span>'
+        : ' <span class="tier-free">Free</span>';
+      userLabel.innerHTML = user.full_name + ' (' + user.email + ')' + tierBadge;
+      if (user.role === 'admin') await loadAdminPanel();
+    }
+  }
+
+  // -- Admin panel: fetch all users, render a table with role/tier
+  // dropdowns and delete buttons. Called only when role === 'admin'.
+  async function loadAdminPanel() {
+    const container = document.getElementById('admin-user-list');
+    const errEl = document.getElementById('admin-error');
+    try {
+      const users = await apiFetch('/admin/users');
+      container.innerHTML = `
+        <table class="admin-user-table">
+          <thead>
+            <tr>
+              <th>Name / Email</th>
+              <th>Role</th>
+              <th>Tier</th>
+              <th>Joined</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            ${users.map(u => `
+              <tr data-user-id="${u.id}">
+                <td>
+                  <strong style="font-size:13px">${u.full_name}</strong>
+                  <br><span style="font-size:11px;color:var(--text3)">${u.email}</span>
+                </td>
+                <td>
+                  <select class="admin-select" data-field="role" data-user-id="${u.id}">
+                    <option value="farmer"   ${u.role === 'farmer'   ? 'selected' : ''}>Farmer</option>
+                    <option value="investor" ${u.role === 'investor' ? 'selected' : ''}>Investor</option>
+                    <option value="admin"    ${u.role === 'admin'    ? 'selected' : ''}>Admin</option>
+                  </select>
+                </td>
+                <td>
+                  <select class="admin-select" data-field="tier" data-user-id="${u.id}">
+                    <option value="free"    ${u.tier === 'free'    ? 'selected' : ''}>Free</option>
+                    <option value="premium" ${u.tier === 'premium' ? 'selected' : ''}>Premium</option>
+                  </select>
+                </td>
+                <td style="font-size:11px;color:var(--text3)">${new Date(u.created_at).toLocaleDateString('en-AU')}</td>
+                <td>
+                  ${u.id !== session.user.id
+                    ? `<button class="admin-del-btn" data-user-id="${u.id}" title="Delete user">Delete</button>`
+                    : '<span style="font-size:11px;color:var(--text3)">You</span>'}
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>`;
+
+      // Wire up role/tier dropdowns -- each change fires a PATCH immediately
+      container.querySelectorAll('.admin-select').forEach(sel => {
+        sel.addEventListener('change', async () => {
+          const userId = sel.dataset.userId;
+          const field = sel.dataset.field;
+          const value = sel.value;
+          try {
+            await apiFetch(`/admin/users/${userId}/${field}`, {
+              method: 'PUT',
+              body: JSON.stringify({ [field]: value }),
+            });
+          } catch (err) {
+            errEl.textContent = err.message;
+            errEl.style.display = 'block';
+          }
+        });
+      });
+
+      // Wire up delete buttons
+      container.querySelectorAll('.admin-del-btn').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const userId = btn.dataset.userId;
+          const row = container.querySelector(`tr[data-user-id="${userId}"]`);
+          const name = row?.querySelector('strong')?.textContent || 'this user';
+          if (!confirm(`Delete ${name} and all their stations/scenarios?\n\nThis cannot be undone.`)) return;
+          try {
+            await apiFetch(`/admin/users/${userId}`, { method: 'DELETE' });
+            await loadAdminPanel(); // refresh the table
+          } catch (err) {
+            errEl.textContent = err.message;
+            errEl.style.display = 'block';
+          }
+        });
+      });
+
+    } catch (err) {
+      container.innerHTML = `<p style="font-size:13px;color:var(--red)">Could not load users: ${err.message}</p>`;
+    }
+  }
+
   async function refreshStations() {
     myStations = await listMyStations();
     stationSelect.innerHTML = myStations.length
@@ -346,9 +455,9 @@ function initAuthPanel() {
     const password = document.getElementById('auth-password').value;
     try {
       const user = await loginUser(email, password);
-      userLabel.textContent = user.full_name + ' (' + user.email + ')';
       loggedOutView.style.display = 'none';
       loggedInView.style.display = 'block';
+      await applyRoleView(user);
       await refreshStations();
     } catch (err) {
       showError(err.message);
@@ -359,13 +468,13 @@ function initAuthPanel() {
     showError('');
     const email = document.getElementById('auth-email').value.trim();
     const password = document.getElementById('auth-password').value;
-    const fullName = email.split('@')[0]; // simple default; user can be prompted for a real name later
+    const fullName = email.split('@')[0];
     try {
       await registerUser(email, fullName, password);
-      await loginUser(email, password);
-      userLabel.textContent = fullName + ' (' + email + ')';
+      const user = await loginUser(email, password);
       loggedOutView.style.display = 'none';
       loggedInView.style.display = 'block';
+      await applyRoleView(user);
       await refreshStations();
     } catch (err) {
       showError(err.message);
@@ -376,6 +485,7 @@ function initAuthPanel() {
     logoutUser();
     loggedInView.style.display = 'none';
     loggedOutView.style.display = 'block';
+    applyRoleView(null); // remove role classes from body on logout
   });
 
   // -- New station form: intentionally a standalone form, not reading
@@ -412,6 +522,23 @@ function initAuthPanel() {
   });
 
   stationSelect.addEventListener('change', refreshScenarios);
+
+  document.getElementById('auth-delete-station-btn').addEventListener('click', async () => {
+    const stationId = stationSelect.value;
+    if (!stationId) { showError('No station selected.'); return; }
+    const stationName = stationSelect.options[stationSelect.selectedIndex]?.text || 'this station';
+    const confirmed = confirm(
+      `Delete "${stationName}" and ALL its saved scenarios?\n\nThis cannot be undone.`
+    );
+    if (!confirmed) return;
+    try {
+      await deleteStation(stationId);
+      await refreshStations();
+      await refreshScenarios();
+    } catch (err) {
+      showError(err.message);
+    }
+  });
 
   document.getElementById('auth-save-scenario-btn').addEventListener('click', async () => {
     const stationId = stationSelect.value;
