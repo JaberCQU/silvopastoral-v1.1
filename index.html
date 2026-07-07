@@ -40,6 +40,7 @@
       <div class="row"><label>Station</label>
         <select id="auth-station-select" style="flex:1;font-size:13px"></select>
         <button class="auth-btn auth-btn-secondary" id="auth-new-station-toggle-btn">+ New station</button>
+        <button class="auth-btn auth-btn-danger" id="auth-delete-station-btn" title="Delete the selected station and all its saved scenarios"><i class="ti ti-trash"></i></button>
       </div>
 
       <!-- Self-contained new-station form -- intentionally independent
@@ -72,12 +73,21 @@
     </div>
   </details>
 
+  <!-- Role notice: shown only for investors (hidden by CSS role classes) -->
+  <div class="investor-notice" id="investor-notice" style="display:none">
+    <i class="ti ti-chart-bar"></i>
+    <div>
+      <strong>Investor summary view</strong> — you are seeing a read-only profit summary. Contact the station owner for full input access.
+    </div>
+  </div>
+
   <div class="tabs">
     <button class="tab active" onclick="showTab('inputs',this)"><i class="ti ti-adjustments-horizontal"></i> Inputs</button>
     <button class="tab" onclick="showTab('profit',this)"><i class="ti ti-report-money"></i> Profit</button>
-    <button class="tab" onclick="showTab('shade',this)"><i class="ti ti-sun"></i> Shade &amp; Water</button>
-    <button class="tab" onclick="showTab('regs',this)"><i class="ti ti-gavel"></i> Regulations</button>
-    <button class="tab" onclick="showTab('logistics',this)"><i class="ti ti-truck"></i> Logistics</button>
+    <button class="tab farmer-only" onclick="showTab('shade',this)"><i class="ti ti-sun"></i> Shade &amp; Water</button>
+    <button class="tab farmer-only" onclick="showTab('regs',this)"><i class="ti ti-gavel"></i> Regulations</button>
+    <button class="tab farmer-only" onclick="showTab('logistics',this)"><i class="ti ti-truck"></i> Logistics</button>
+    <button class="tab admin-only" onclick="showTab('admin',this)" id="admin-tab-btn" style="display:none"><i class="ti ti-shield"></i> Admin</button>
   </div>
 
   <!-- INPUTS TAB -->
@@ -228,6 +238,16 @@
     <hr>
     <p class="sl">Export opportunity</p>
     <div class="info-box" id="l-export">--</div>
+  </div>
+
+  <!-- ADMIN TAB (only rendered for role=admin) -->
+  <div class="panel" id="tab-admin">
+    <p class="sl">User management</p>
+    <div class="info-box">You are logged in as an administrator. Changes here take effect immediately.</div>
+    <div id="admin-user-list">
+      <p style="font-size:13px;color:var(--text2)">Loading users...</p>
+    </div>
+    <div id="admin-error" class="auth-error" style="display:none"></div>
   </div>
 
   <p class="footer-note">Estimates only -- for indicative purposes. Verify all figures with DAF Queensland, MLA, and Clean Energy Regulator before making investment decisions.</p>
