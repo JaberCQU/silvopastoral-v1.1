@@ -394,22 +394,27 @@ function initAuthPanel() {
         </table>`;
 
       // Wire up role/tier dropdowns -- each change fires a PATCH immediately
-      container.querySelectorAll('.admin-select').forEach(sel => {
-        sel.addEventListener('change', async () => {
-          const userId = sel.dataset.userId;
-          const field = sel.dataset.field;
-          const value = sel.value;
-          try {
-            await apiFetch(`/admin/users/${userId}/${field}`, {
-              method: 'PUT',
-              body: JSON.stringify({ [field]: value }),
-            });
-          } catch (err) {
-            errEl.textContent = err.message;
-            errEl.style.display = 'block';
-          }
-        });
+     container.querySelectorAll('.admin-select').forEach(sel => {
+  sel.addEventListener('change', async () => {
+    const userId = sel.dataset.userId;
+    const field = sel.dataset.field;
+    const value = sel.value;
+    errEl.style.display = 'none';
+    try {
+      await apiFetch(`/admin/users/${userId}/${field}`, {
+        method: 'PUT',
+        body: JSON.stringify({ [field]: value }),
       });
+      // Reload the whole table so we can visually confirm the change persisted
+      await loadAdminPanel();
+    } catch (err) {
+      errEl.textContent = 'Failed to update ' + field + ': ' + err.message;
+      errEl.style.display = 'block';
+      // Reload to reset the dropdown to the actual server-side value
+      await loadAdminPanel();
+    }
+  });
+});
 
       // Wire up delete buttons
       container.querySelectorAll('.admin-del-btn').forEach(btn => {
