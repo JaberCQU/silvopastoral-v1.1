@@ -333,8 +333,11 @@ hr { border: none; border-top: 0.5px solid var(--border); margin: 20px 0; }
 /* ---- Role-based visibility ---- */
 /* By default everything is visible (no role = public/farmer view).
    When body has class 'role-investor', farmer-only tabs are hidden.
+   When body has class 'role-investor' AND 'tier-premium', those tabs
+   are shown again (but sliders remain read-only).
    When body has class 'role-admin', admin-only elements are shown. */
 body.role-investor .farmer-only { display: none !important; }
+body.role-investor.tier-premium .farmer-only { display: inline-flex !important; }
 body.role-investor #investor-notice { display: flex !important; }
 body.role-investor #tab-inputs .row input[type=range],
 body.role-investor #tab-inputs .row select,
