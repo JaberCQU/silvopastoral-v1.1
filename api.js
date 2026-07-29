@@ -328,18 +328,30 @@ function initAuthPanel() {
     authError.style.display = msg ? 'block' : 'none';
   }
 
-  // -- Role-aware view: applies a CSS class to <body> so that
+  // -- Role-aware view: applies CSS classes to <body> so that
   // farmer-only tabs are hidden for investors, and the admin tab
-  // is revealed for admins. Also populates the admin tab content.
+  // is revealed for admins. Premium investors get extra tabs.
   async function applyRoleView(user) {
-    document.body.classList.remove('role-farmer', 'role-investor', 'role-admin');
+    document.body.classList.remove(
+      'role-farmer', 'role-investor', 'role-admin',
+      'tier-free', 'tier-premium'
+    );
     if (user) {
       document.body.classList.add('role-' + user.role);
+      document.body.classList.add('tier-' + user.tier);
+
       // Show tier badge next to user name
       const tierBadge = user.tier === 'premium'
         ? ' <span class="tier-premium">Premium</span>'
         : ' <span class="tier-free">Free</span>';
       userLabel.innerHTML = user.full_name + ' (' + user.email + ')' + tierBadge;
+
+      // Show upgrade hint only for free investors
+      const upgradeHint = document.getElementById('investor-upgrade-hint');
+      if (upgradeHint) {
+        upgradeHint.style.display = (user.role === 'investor' && user.tier === 'free') ? 'inline' : 'none';
+      }
+
       if (user.role === 'admin') await loadAdminPanel();
     }
   }
@@ -393,28 +405,26 @@ function initAuthPanel() {
           </tbody>
         </table>`;
 
-      // Wire up role/tier dropdowns -- each change fires a PATCH immediately
-     container.querySelectorAll('.admin-select').forEach(sel => {
-  sel.addEventListener('change', async () => {
-    const userId = sel.dataset.userId;
-    const field = sel.dataset.field;
-    const value = sel.value;
-    errEl.style.display = 'none';
-    try {
-      await apiFetch(`/admin/users/${userId}/${field}`, {
-        method: 'PUT',
-        body: JSON.stringify({ [field]: value }),
+      // Wire up role/tier dropdowns -- each change fires immediately
+      container.querySelectorAll('.admin-select').forEach(sel => {
+        sel.addEventListener('change', async () => {
+          const userId = sel.dataset.userId;
+          const field = sel.dataset.field;
+          const value = sel.value;
+          errEl.style.display = 'none';
+          try {
+            await apiFetch(`/admin/users/${userId}/${field}`, {
+              method: 'PUT',
+              body: JSON.stringify({ [field]: value }),
+            });
+            await loadAdminPanel(); // reload table to confirm change
+          } catch (err) {
+            errEl.textContent = 'Failed to update ' + field + ': ' + err.message;
+            errEl.style.display = 'block';
+            await loadAdminPanel(); // reset dropdown to actual server value
+          }
+        });
       });
-      // Reload the whole table so we can visually confirm the change persisted
-      await loadAdminPanel();
-    } catch (err) {
-      errEl.textContent = 'Failed to update ' + field + ': ' + err.message;
-      errEl.style.display = 'block';
-      // Reload to reset the dropdown to the actual server-side value
-      await loadAdminPanel();
-    }
-  });
-});
 
       // Wire up delete buttons
       container.querySelectorAll('.admin-del-btn').forEach(btn => {
@@ -440,9 +450,34 @@ function initAuthPanel() {
 
   async function refreshStations() {
     myStations = await listMyStations();
-    stationSelect.innerHTML = myStations.length
-      ? myStations.map(s => `<option value="${s.id}">${s.name} (${s.region})</option>`).join('')
-      : '<option value="">No stations yet -- create one below</option>';
+    const role = session.user?.role;
+    const isReadOnly = role === 'investor';
+    const showOwner = role === 'investor' || role === 'admin';
+
+    // Show/hide write-access controls based on role
+    // Investors cannot create, save, or delete stations/scenarios
+    const newStationToggleBtn = document.getElementById('auth-new-station-toggle-btn');
+    const deleteStationBtn    = document.getElementById('auth-delete-station-btn');
+    const saveScenarioBtn     = document.getElementById('auth-save-scenario-btn');
+
+    if (newStationToggleBtn) newStationToggleBtn.style.display = isReadOnly ? 'none' : '';
+    if (deleteStationBtn)    deleteStationBtn.style.display    = isReadOnly ? 'none' : '';
+    if (saveScenarioBtn)     saveScenarioBtn.style.display     = isReadOnly ? 'none' : '';
+
+    if (myStations.length === 0) {
+      stationSelect.innerHTML = isReadOnly
+        ? '<option value="">No stations available yet</option>'
+        : '<option value="">No stations yet -- create one below</option>';
+      return;
+    }
+
+    // For admins and investors, label each station with its owner's email
+    stationSelect.innerHTML = myStations.map(s => {
+      const ownerLabel = (showOwner && s.owner_email && s.owner_email !== session.user?.email)
+        ? ` — ${s.owner_email}`
+        : '';
+      return `<option value="${s.id}">${s.name} (${s.region})${ownerLabel}</option>`;
+    }).join('');
   }
 
   async function refreshScenarios() {
