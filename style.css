@@ -1,10 +1,12 @@
 /* ============================================================
    CQ Silvopastoral Dashboard — Stylesheet
    Author: Jaber (CQUniversity)
-   Version: 1.0 (Phase 1 — Static Prototype)
+   Version: 2.0 (Workshop Edition)
    Description: Responsive styling for the silvopastoral
    decision-support tool. Designed for cattle station owners
    in Central Queensland. Supports light and dark mode.
+   New in v2.0: map selector, suggestion boxes, horizon
+   selector, forum tab.
    ============================================================ */
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -32,7 +34,7 @@
   --font:       -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
 }
 
-/* Dark mode support */
+/* Dark mode */
 @media (prefers-color-scheme: dark) {
   :root {
     --bg:       #1c1c1a;
@@ -78,6 +80,7 @@ header .logo {
   background: var(--green);
   border-radius: var(--radius-md);
   display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
 }
 header .logo i { color: #fff; font-size: 20px; }
 header h1 { font-size: 17px; font-weight: 500; }
@@ -85,7 +88,7 @@ header p  { font-size: 12px; color: var(--text2); margin-top: 2px; }
 
 /* ---- Layout ---- */
 .container {
-  max-width: 900px;
+  max-width: 920px;
   margin: 0 auto;
   padding: 24px 16px;
 }
@@ -146,7 +149,7 @@ header p  { font-size: 12px; color: var(--text2); margin-top: 2px; }
   gap: 12px;
   margin-bottom: 14px;
 }
-.row label { font-size: 13px; color: var(--text2); min-width: 160px; }
+.row label { font-size: 13px; color: var(--text2); min-width: 190px; }
 .row input[type=range] { flex: 1; accent-color: var(--green); }
 .row select {
   flex: 1;
@@ -158,7 +161,134 @@ header p  { font-size: 12px; color: var(--text2); margin-top: 2px; }
   background: var(--bg);
   color: var(--text);
 }
-.rv { font-size: 13px; font-weight: 500; min-width: 72px; text-align: right; }
+.rv { font-size: 13px; font-weight: 500; min-width: 90px; text-align: right; }
+
+/* Carbon probability label */
+.prob-label {
+  font-size: 11px;
+  color: var(--amber);
+  font-weight: 500;
+  font-style: italic;
+  white-space: nowrap;
+}
+
+/* ---- Interactive Map Selector ---- */
+.map-selector-wrap {
+  margin-bottom: 20px;
+}
+.map-label-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.map-label {
+  font-size: 13px;
+  color: var(--text2);
+}
+.qld-map-container {
+  display: flex;
+  justify-content: center;
+}
+.qld-map-svg {
+  width: 100%;
+  max-width: 340px;
+  height: auto;
+  border-radius: var(--radius-lg);
+  border: 0.5px solid var(--border);
+  background: var(--bg2);
+  padding: 8px;
+}
+
+/* Map region paths */
+.map-region {
+  fill: var(--bg3);
+  stroke: var(--border2);
+  stroke-width: 1.5;
+  cursor: pointer;
+  transition: fill 0.2s, stroke 0.2s;
+}
+.map-region:hover {
+  fill: var(--green-bg);
+  stroke: var(--green);
+}
+.map-region-active {
+  fill: var(--green-bg) !important;
+  stroke: var(--green) !important;
+  stroke-width: 2.5 !important;
+}
+.map-region:focus-visible {
+  outline: none;
+  stroke: var(--blue) !important;
+  stroke-width: 3 !important;
+  fill: var(--blue-bg) !important;
+}
+.map-rtext {
+  font-size: 9px;
+  fill: var(--text2);
+  font-family: var(--font);
+  pointer-events: none;
+  font-weight: 500;
+}
+.map-region-active ~ .map-rtext,
+.map-region:hover ~ .map-rtext {
+  fill: var(--green);
+}
+
+/* ---- Suggestion Boxes ---- */
+.suggestion-box {
+  border-radius: var(--radius-md);
+  border: 0.5px solid var(--border);
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+.sug-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: var(--bg2);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+}
+.sug-header i:first-child { font-size: 16px; }
+.sug-close {
+  margin-left: auto;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text2);
+  padding: 0;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  transition: transform 0.2s;
+}
+.suggestion-species .sug-header { color: var(--green); background: var(--green-bg); }
+.suggestion-density .sug-header { color: var(--blue);  background: var(--blue-bg);  }
+
+.sug-body {
+  display: none;
+  padding: 12px 14px;
+  background: var(--bg);
+}
+.sug-expanded .sug-body { display: block; }
+.sug-expanded .sug-close i { transform: rotate(180deg); }
+
+.sug-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 12.5px;
+  color: var(--text2);
+  line-height: 1.6;
+  margin-bottom: 8px;
+}
+.sug-row:last-child { margin-bottom: 0; }
+.sug-row i { font-size: 14px; flex-shrink: 0; margin-top: 2px; color: var(--text3); }
+.sug-row strong { color: var(--text); }
+.sug-highlight { background: var(--bg2); padding: 6px 8px; border-radius: var(--radius-md); }
 
 /* ---- Metric Grid ---- */
 .mg { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 20px; }
@@ -190,6 +320,40 @@ header p  { font-size: 12px; color: var(--text2); margin-top: 2px; }
 .pr .vl { white-space: nowrap; }
 .pr.tot .vl { color: var(--green); }
 .pr.neg .vl { color: var(--red); }
+
+/* ---- Horizon Selector ---- */
+.horizon-selector-wrap {
+  margin-bottom: 16px;
+}
+.horizon-hint {
+  font-size: 12px;
+  color: var(--text2);
+  margin-bottom: 10px;
+  line-height: 1.6;
+}
+.horizon-btn-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.hz-btn {
+  font-size: 12px;
+  font-family: var(--font);
+  padding: 6px 14px;
+  border: 0.5px solid var(--border2);
+  border-radius: 20px;
+  background: var(--bg2);
+  color: var(--text2);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  font-weight: 500;
+}
+.hz-btn:hover { background: var(--bg3); color: var(--text); }
+.hz-btn-active {
+  background: var(--green) !important;
+  color: #fff !important;
+  border-color: var(--green) !important;
+}
 
 /* ---- Divider ---- */
 hr { border: none; border-top: 0.5px solid var(--border); margin: 20px 0; }
@@ -246,15 +410,119 @@ hr { border: none; border-top: 0.5px solid var(--border); margin: 20px 0; }
   border-top: 0.5px solid var(--border);
 }
 
+/* ---- Community Forum ---- */
+.forum-compose {
+  background: var(--bg2);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  margin-bottom: 20px;
+}
+.forum-textarea {
+  width: 100%;
+  font-size: 13px;
+  font-family: var(--font);
+  padding: 10px 12px;
+  border: 0.5px solid var(--border2);
+  border-radius: var(--radius-md);
+  background: var(--bg);
+  color: var(--text);
+  resize: vertical;
+  line-height: 1.6;
+}
+.forum-textarea:focus {
+  outline: none;
+  border-color: var(--green);
+}
+
+.forum-post {
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  background: var(--bg);
+}
+.forum-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.forum-author {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.forum-time {
+  font-size: 11px;
+  color: var(--text3);
+  margin-left: auto;
+}
+.forum-body {
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.65;
+  margin-bottom: 10px;
+}
+
+.forum-reply {
+  background: var(--bg2);
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+  margin: 8px 0;
+  border-left: 2.5px solid var(--border2);
+}
+
+.forum-reply-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+.forum-reply-input {
+  flex: 1;
+  font-size: 12px;
+  font-family: var(--font);
+  padding: 6px 10px;
+  border: 0.5px solid var(--border2);
+  border-radius: var(--radius-md);
+  background: var(--bg2);
+  color: var(--text);
+}
+.forum-reply-input:focus {
+  outline: none;
+  border-color: var(--green);
+  background: var(--bg);
+}
+
+.forum-loading, .forum-empty {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 24px;
+  color: var(--text3);
+  font-size: 13px;
+  justify-content: center;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
 /* ---- Responsive ---- */
 @media (max-width: 600px) {
-  .row label { min-width: 100px; font-size: 12px; }
+  .row label { min-width: 110px; font-size: 12px; }
   .tab { padding: 10px 10px; font-size: 12px; }
   header h1 { font-size: 14px; }
+  .hz-btn { padding: 5px 10px; font-size: 11px; }
+  .qld-map-svg { max-width: 280px; }
+  .horizon-btn-row { gap: 4px; }
 }
 
 /* ============================================================
-   Phase 2 additions: connection status badge + account panel
+   Auth Panel & Account UI
    ============================================================ */
 
 .api-status {
@@ -298,7 +566,7 @@ hr { border: none; border-top: 0.5px solid var(--border); margin: 20px 0; }
   border-radius: var(--radius-md);
   margin-bottom: 12px;
 }
-.auth-btn-row { display: flex; gap: 8px; margin: 12px 0 16px; }
+.auth-btn-row { display: flex; gap: 8px; margin: 12px 0 16px; flex-wrap: wrap; }
 .auth-btn {
   font-size: 13px;
   font-family: var(--font);
@@ -309,8 +577,13 @@ hr { border: none; border-top: 0.5px solid var(--border); margin: 20px 0; }
   color: #fff;
   cursor: pointer;
   white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: opacity 0.15s;
 }
-.auth-btn:hover { opacity: 0.9; }
+.auth-btn:hover:not(:disabled) { opacity: 0.9; }
+.auth-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 .auth-btn-secondary { background: var(--bg2); color: var(--text); border: 0.5px solid var(--border2); }
 .auth-btn-danger { background: var(--red-bg); color: var(--red); border: 0.5px solid transparent; }
 .auth-btn-danger:hover { background: var(--red); color: #fff; opacity: 1; }
@@ -331,11 +604,6 @@ hr { border: none; border-top: 0.5px solid var(--border); margin: 20px 0; }
 .investor-notice strong { display: block; margin-bottom: 2px; }
 
 /* ---- Role-based visibility ---- */
-/* By default everything is visible (no role = public/farmer view).
-   When body has class 'role-investor', farmer-only tabs are hidden.
-   When body has class 'role-investor' AND 'tier-premium', those tabs
-   are shown again (but sliders remain read-only).
-   When body has class 'role-admin', admin-only elements are shown. */
 body.role-investor .farmer-only { display: none !important; }
 body.role-investor.tier-premium .farmer-only { display: inline-flex !important; }
 body.role-investor #investor-notice { display: flex !important; }
@@ -368,4 +636,3 @@ body.role-admin #admin-tab-btn { display: flex !important; }
   padding: 0;
   margin-left: 6px;
 }
-
