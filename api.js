@@ -602,6 +602,53 @@ function initAuthPanel() {
 }
 
 
+// ---- Forum API helpers -----------------------------------------------
+// These are called by the forum functions in app.js.
+// All forum calls require a logged-in session token.
+
+/**
+ * Load all forum posts (with replies). Returns array sorted newest-first.
+ * Called by loadForum() in app.js.
+ */
+async function forumLoadPosts() {
+  return apiFetch('/forum/posts');
+}
+
+/**
+ * Post a new message to the forum.
+ * body: string text of the post
+ */
+async function forumCreatePost(body) {
+  return apiFetch('/forum/posts', {
+    method: 'POST',
+    body: JSON.stringify({ body }),
+  });
+}
+
+/**
+ * Post a reply to an existing forum post.
+ * postId: integer ID of the parent post
+ * body: string text of the reply
+ */
+async function forumCreateReply(postId, body) {
+  return apiFetch(`/forum/posts/${postId}/replies`, {
+    method: 'POST',
+    body: JSON.stringify({ body }),
+  });
+}
+
+
+// ---- Auth panel: extend to update forum tab visibility on login ------
+
+function updateForumTabVisibility() {
+  const forumBtn = document.getElementById('tab-btn-forum');
+  if (!forumBtn) return;
+  // Forum tab is always visible — but content inside checks auth.
+  // This just re-shows the tab if it was somehow hidden.
+  forumBtn.style.display = '';
+}
+
+
 // ---- Startup --------------------------------------------------------
 // Runs alongside app.js's own DOMContentLoaded handler (which calls
 // update() once with the default/fallback data). This handler then
@@ -611,6 +658,7 @@ function initAuthPanel() {
 
 document.addEventListener('DOMContentLoaded', async () => {
   initAuthPanel();
+  updateForumTabVisibility();
   const gotLiveData = await loadReferenceDataFromApi();
   if (gotLiveData) update(); // re-run with live data now in SPECIES/REGIONS
 });
