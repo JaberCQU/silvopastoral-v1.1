@@ -111,6 +111,16 @@ const REGIONS = {
     roadRisk:   'high',
     soilNote:   'Grey and brown cracking clays (vertosols); semi-arid Mitchell grass country. Ironbark and mulga suit this region. Carbon sequestration potential is very high.',
   },
+  gingin: {
+    label:      'Gin Gin / North Burnett',
+    saleyard:   'Murgon Saleyards',
+    saleyardKm: 70,
+    abattoir:   'Oakey Beef Exports — Oakey',
+    abattoirKm: 220,
+    roadNote:   'Bruce Hwy and Burnett Hwy sealed year-round. Some back roads close after heavy summer rain.',
+    roadRisk:   'low',
+    soilNote:   'Red loams and yellow earths over Burnett sandstone. Excellent for Hoop Pine (proven plantation history nearby) and Spotted Gum on red country. Rainfall 700–900mm — reliable for most species.',
+  },
 };
 
 // ---- Regulatory data ------------------------------------------------
@@ -195,6 +205,14 @@ const SPECIES_SUGGESTIONS = {
     marketReason: 'Ironbark for rail sleepers and power poles has stable government infrastructure demand. Carbon sequestration in this region commands premium ACCUs due to high additionality.',
     alternatives: [],
     altNote: 'Note: consider supplementary carbon revenue as the primary income stream for Longreach operations — timber transport distances are high.',
+  },
+  gingin: {
+    bestSoil:   'spotted_gum',
+    bestMarket: 'spotted_gum',
+    soilReason: 'Red loams and yellow earths over Burnett sandstone suit Spotted Gum very well — the species thrives on well-drained red country with 700–900 mm rainfall, delivering consistent yields across the North Burnett.',
+    marketReason: 'Spotted Gum commands premium prices in the hardwood export market (flooring, decking, structural). High and growing demand from Asian export buyers, with proximity to Maryborough and Brisbane port keeping logistics costs competitive.',
+    alternatives: ['hoop_pine'],
+    altNote: 'Hoop Pine is a proven plantation species in the North Burnett with lower establishment risk and shorter sawlog rotation, but lower royalty than Spotted Gum.',
   },
 };
 
@@ -688,13 +706,13 @@ function showDensitySuggestion() {
 
 // ---- Tab switcher ---------------------------------------------------
 function showTab(tabId, btn) {
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => {
+    p.classList.remove('active');
+    p.style.display = '';   // clear any inline style so CSS controls display
+  });
   document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
   const panel = document.getElementById(tabId);
-  if (panel) {
-    panel.style.display = 'block';
-    panel.classList.add('active');
-  }
+  if (panel) panel.classList.add('active');
   if (btn) btn.classList.add('active');
 }
 
