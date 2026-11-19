@@ -444,7 +444,7 @@ function updateSliderLabels() {
   setLabel('rv-station-ha',   fmtN(v('station-ha'))  + ' ha');
   setLabel('rv-hectares',     fmtN(v('hectares'))     + ' ha');
   setLabel('rv-density',      fmtN(v('density'))      + ' trees/ha');
-  setLabel('rv-beef-price',   fmtN(v('beef-price'))   + ' c/kg');
+  setLabel('rv-beef-price',   '$' + (v('beef-price')/100).toFixed(2) + '/kg');
   setLabel('rv-carry',        v('carry')               + ' ha/head');
   setLabel('rv-cattle-cartage','$' + v('cattle-cartage') + '/hd');
   setLabel('rv-cattle-maint', '$' + v('cattle-maint') + '/hd/yr');
