@@ -142,7 +142,7 @@ const REGS = [
   {
     icon: '🐄',
     title: 'Land Tax & Primary Production',
-    desc: 'Land used for primary production (cattle + forestry combined) may qualify for primary production land tax exemption. The silvopastoral system must meet the QLD Revenue Office's dominant use test.',
+    desc: 'Land used for primary production (cattle + forestry combined) may qualify for primary production land tax exemption. The silvopastoral system must meet the QLD Revenue Office’s dominant use test.',
     badge: 'badge-green',
     badgeText: 'Usually exempt',
   },
